@@ -2,9 +2,18 @@
 import requests
 import json
 import pandas as pd
-import datetime
+from datetime import date
 api_key = "aad87082b5e5cde09257c29948bb37b0"
 fleet_ids = [662610, 729894, 730509, 794724, 792004]
+def process_date():
+    today = date.today()
+    today = str(today)
+    print(today)
+    year = today[0:4]
+    month = today[5:7]
+    day = int(today[8:10]) - 1
+    yesterday = year + month + str(day)
+    return yesterday
 def api_call():
     url = "https://api.yelo.red/open/orders/getAll"
     parameter = {
@@ -14,8 +23,8 @@ def api_call():
         "order_status": 13,
         "start": 0,
         "length": 1000,
-        "start_date": "20201010",
-        "end_date": "20201010"
+        "start_date": process_date(),
+        "end_date": process_date()
     } 
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
@@ -33,7 +42,7 @@ def agent_api():
     url = "https://private-anon-405ba5e8b1-tookanapi.apiary-proxy.com/v2/get_fleets_availability"
     parameter = {
     "api_key":"51646384f34a57081c586c7b5d46254314e3cdf822d4733a541e01   ", 
-    "local_date_time":"2020-10-10",
+    "local_date_time":process_date(),
     "limit" : 0
 }
     headers = {'Content-Type': 'application/json'}
@@ -65,7 +74,7 @@ def jsave(obj):
     
 def save_json(obj):
     if obj == "orders":
-        with open('orders_20201010.json', 'w') as outfile:
+        with open('orders_%s.json' + %yesterday(), 'w') as outfile:
             json.dump(api_call().json(), outfile)
     if obj == "customer":
         with open('users_20201010.json', 'w') as outfile:
@@ -74,7 +83,7 @@ def save_json(obj):
         with open('agent_20201010.json', 'w') as outfile:
             json.dump(agent_api().json(), outfile)
         #print("1")
-"""     
+'''    
 #order_details = jsave(api_call().json())
 order_details = api_call().json()
 print(type(order_details))
@@ -120,6 +129,11 @@ customer = user_details().json()
 
 save_json("customer")
 #print(type(jobs))
-#jprint(jobs[1])"""
+#jprint(jobs[1])
+'''
+
+'''
 order_detail = order_details().json()
 jprint(order_detail)
+'''
+
