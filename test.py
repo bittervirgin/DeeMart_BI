@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import datetime
 api_key = "aad87082b5e5cde09257c29948bb37b0"
+fleet_ids = [662610, 729894, 730509, 794724, 792004]
 def api_call():
     url = "https://api.yelo.red/open/orders/getAll"
     parameter = {
@@ -11,8 +12,10 @@ def api_call():
         "user_id": 373138,
         "marketplace_user_id": 373138,
         "order_status": 13,
-        "start_date": "20201009",
-        "end_date": "20201009"
+        "start": 0,
+        "length": 1000,
+        "start_date": "20201010",
+        "end_date": "20201010"
     } 
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
@@ -24,10 +27,28 @@ def user_details():
         #"marketplace_user_id": 373138
     }
     headers = {'Content-Type': 'application/json'}
-    response = requests.get(url, params = parameter)
+    response = requests.get(url, params = parameter, headers=headers)
     return response
-
+def agent_api():
+    url = "https://private-anon-405ba5e8b1-tookanapi.apiary-proxy.com/v2/get_fleets_availability"
+    parameter = {
+    "api_key":"51646384f34a57081c586c7b5d46254314e3cdf822d4733a541e01   ", 
+    "local_date_time":"2020-10-10",
+    "limit" : 0
+}
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, data=json.dumps(parameter), headers=headers)
+    return response
 #print(api_call)
+def order_details():
+    url = "https://api.yelo.red/open/orders/getDetails"
+    parameter = {
+        "api_key": api_key,
+        "job_id": 2877732
+    }
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, data=json.dumps(parameter), headers=headers)
+    return response
 
 def jprint(obj):
     # create a formatted string of the Python JSON object
@@ -44,12 +65,16 @@ def jsave(obj):
     
 def save_json(obj):
     if obj == "orders":
-        with open('orders_20201009.json', 'w') as outfile:
+        with open('orders_20201010.json', 'w') as outfile:
             json.dump(api_call().json(), outfile)
     if obj == "customer":
-        with open('users_20201009.json', 'w') as outfile:
+        with open('users_20201010.json', 'w') as outfile:
             json.dump(user_details().json(), outfile)
-     
+    if obj == "agent":
+        with open('agent_20201010.json', 'w') as outfile:
+            json.dump(agent_api().json(), outfile)
+        #print("1")
+"""     
 #order_details = jsave(api_call().json())
 order_details = api_call().json()
 print(type(order_details))
@@ -60,26 +85,41 @@ data = order_details['data']
 count = data['count']
 jobs = data['all_jobs']
 #jprint(jobs)
+print(len(jobs))
 total = 0
 revenue = 0
+agent = []
 for i in range(len(jobs)):
-    print(i)
+    
     order = jobs[i]
-    print(order['merchant_name'])
+    #print(order['merchant_name'])
     total += len(order['product_ids'])
     revenue += order['order_amount']
+
+for i in range(len(jobs)):
+    order = jobs[i]
+    seen = set(agent)
+    if order['job_pickup_phone'] not in seen:
+        seen.add(order['job_pickup_phone'])
+        agent.append(order['job_pickup_phone'])
 print("Revenue ", revenue)
 print("Total orders: ", count)
 print("Total products: ",total)
 basket_size = total/count
 print("Ticket size: ", revenue/count)
 print("Basket size:",basket_size)
+#print("Agent: ", len(agent))
+#print("Agent: ", agent)
 order = jobs[0]
-print(type(order))   
-
+print(type(order))
+agent_details = agent_api().json()
+jsave("agent")
+jprint(agent_details)
 customer = user_details().json()
 #jprint(customer)
 
 save_json("customer")
 #print(type(jobs))
-#jprint(jobs[1])
+#jprint(jobs[1])"""
+order_detail = order_details().json()
+jprint(order_detail)
