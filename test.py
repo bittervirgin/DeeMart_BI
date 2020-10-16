@@ -7,13 +7,16 @@ api_key = "aad87082b5e5cde09257c29948bb37b0"
 fleet_ids = [662610, 729894, 730509, 794724, 792004]
 def process_date():
     today = date.today()
-    today = str(today)
+    today = today.strftime("%Y%M%D")
+    #today = str(today)
     print(today)
+    '''
     year = today[0:4]
     month = today[5:7]
     day = int(today[8:10]) - 1
     yesterday = year + month + str(day)
-    return yesterday
+    '''
+    return today
 def api_call():
     url = "https://api.yelo.red/open/orders/getAll"
     parameter = {
@@ -23,8 +26,8 @@ def api_call():
         "order_status": 13,
         "start": 0,
         "length": 1000,
-        "start_date": process_date(),
-        "end_date": process_date()
+        "start_date": str(process_date()),
+        "end_date": str(process_date())
     } 
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
@@ -73,26 +76,61 @@ def jsave(obj):
         #json.dump(text, outfile)
     
 def save_json(obj):
+    yesterday = str(process_date())
     if obj == "orders":
-        with open('orders_%s.json' + %yesterday(), 'w') as outfile:
+        
+        with open('orders_%s.json' %yesterday, 'w')  as outfile:
             json.dump(api_call().json(), outfile)
+        print("Success")
     if obj == "customer":
-        with open('users_20201010.json', 'w') as outfile:
+        with open('users_%s.json' %yesterday, 'w') as outfile:
             json.dump(user_details().json(), outfile)
     if obj == "agent":
-        with open('agent_20201010.json', 'w') as outfile:
+        with open('agent_%s.json' %yesterday, 'w') as outfile:
             json.dump(agent_api().json(), outfile)
         #print("1")
-'''    
+
 #order_details = jsave(api_call().json())
-order_details = api_call().json()
-print(type(order_details))
-save_json("orders")
+#order_details = api_call().json()
+#print(type(order_details))
+#save_json("orders")
 #print(order_details)
 
+#data = order_details['data']
+#print("Data type: ", type(data))
+#count = data['count']
+#jobs = data['all_jobs']
+'''
+for i in range(len(jobs)):    
+    job = jobs[i]
+    product_details = job['product_details']
+    for j in range(len(product_details)):
+        product = product_details[j]
+        #print(product[len(product)-4])
+'''
+"""
+job = jobs[1]
+product_details = job['product_details']
+product = product_details[1]
+print(product)
+"""
+def open_file(ftype):
+    if ftype == "orders":
+        yesterday = process_date()
+        with open("orders_%s.json" %str(yesterday), 'r') as f:
+            orders = f.read()
+
+    return orders
+'''
+order_details = json.loads(open_file("orders"))
 data = order_details['data']
-count = data['count']
 jobs = data['all_jobs']
+job = jobs[1]
+product_details = job['product_details']
+product = product_details[1]
+print(product)
+'''
+"""   
 #jprint(jobs)
 print(len(jobs))
 total = 0
@@ -130,10 +168,14 @@ customer = user_details().json()
 save_json("customer")
 #print(type(jobs))
 #jprint(jobs[1])
-'''
+"""
 
 '''
 order_detail = order_details().json()
 jprint(order_detail)
 '''
-
+process_date()
+#order_details = api_call().json()
+#save_json("orders")
+#print(process_date())
+#print(order_details)
