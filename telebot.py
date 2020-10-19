@@ -15,8 +15,21 @@ def api_call(text):
 
 def generate_report():
     yesterday = test.process_date()
-    yesterday = yesterday.strftime("%d-/%m-/%Y")
+    '''
+    for i in range(len(yesterday)):
+        print("i: ",i, yesterday[i])
+    '''
+    #print(len(yesterday))
+    year = yesterday[0:4]
+    #print(year)
+    month = yesterday[4:6]
+    #print(month)
+    day = yesterday[6:8]
+    #print(day)
+    
+    yesterday = day + " - " + month + " - " + year
     print(yesterday)
+    #test.save_json("orders")
     orders = json.loads(test.open_file("orders"))
     #print("Orders type: ",type(orders))
     data = orders['data']
@@ -36,9 +49,13 @@ def generate_report():
         for j in range(len(product_details)):
             product = product_details[j]
             print(product)
+            print(product[len(product) - 4])
             total += int(product[len(product) - 4])
+            print(total)
+            
         #total += len(order['product_ids'])
         revenue += order['order_amount']
+    print("Total: ", total)
     basket_size = total/count
     ticket_size = revenue/count
     

@@ -7,17 +7,18 @@ api_key = "aad87082b5e5cde09257c29948bb37b0"
 fleet_ids = [662610, 729894, 730509, 794724, 792004]
 def process_date():
     today = date.today()
-    today = today.strftime("%Y%M%D")
-    #today = str(today)
-    print(today)
-    '''
+    #today = today.strftime("%Y%M%D")
+    today = str(today)
+    #print("Today: ",today)
+    
     year = today[0:4]
     month = today[5:7]
     day = int(today[8:10]) - 1
     yesterday = year + month + str(day)
-    '''
-    return today
+    
+    return yesterday
 def api_call():
+    
     url = "https://api.yelo.red/open/orders/getAll"
     parameter = {
         "api_key": api_key,
@@ -47,7 +48,7 @@ def agent_api():
     "api_key":"51646384f34a57081c586c7b5d46254314e3cdf822d4733a541e01   ", 
     "local_date_time":process_date(),
     "limit" : 0
-}
+}   
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
     return response
@@ -56,7 +57,7 @@ def order_details():
     url = "https://api.yelo.red/open/orders/getDetails"
     parameter = {
         "api_key": api_key,
-        "job_id": 2877732
+        "job_id": 3024756
     }
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
@@ -174,7 +175,7 @@ save_json("customer")
 order_detail = order_details().json()
 jprint(order_detail)
 '''
-process_date()
+jprint(order_details().json())
 #order_details = api_call().json()
 #save_json("orders")
 #print(process_date())
