@@ -4,6 +4,7 @@ import json
 import pandas as pd
 from datetime import date
 api_key = "aad87082b5e5cde09257c29948bb37b0"
+
 fleet_ids = [662610, 729894, 730509, 794724, 792004]
 def process_date():
     today = date.today()
@@ -17,8 +18,8 @@ def process_date():
     yesterday = year + month + str(day)
     
     return yesterday
+
 def api_call(user_id):
-    
     url = "https://api.yelo.red/open/orders/getAll"
     parameter = {
         "api_key": api_key,
@@ -33,21 +34,22 @@ def api_call(user_id):
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
     return response
+
 def user_details():
     url = "https://api.yelo.red/open/customer/view"
     parameter = {
-        "api_key": api_key,
-        #"marketplace_user_id": 373138
+        "api_key": "aad87082b5e5cde09257c29948bb37b0",
+        "marketplace_user_id": 660774
     }
     headers = {'Content-Type': 'application/json'}
     response = requests.get(url, params = parameter, headers=headers)
     return response
-def agent_api():
-    url = "https://private-anon-405ba5e8b1-tookanapi.apiary-proxy.com/v2/get_fleets_availability"
+
+def get_all_agent():
+    url = "https://api.tookanapp.com/v2/get_all_fleets"
     parameter = {
-    "api_key":"51646384f34a57081c586c7b5d46254314e3cdf822d4733a541e01   ", 
-    "local_date_time":process_date(),
-    "limit" : 0
+    "api_key":"51646384f34a57081c586c7b5d46254314e3cdf822d4733a541e01"
+
     }   
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json.dumps(parameter), headers=headers)
@@ -81,21 +83,24 @@ def save_json(obj, user_id):
     yesterday = str(process_date())
     if obj == "orders":
         
-        with open('orders_%s.json' %yesterday, 'w')  as outfile:
+        with open('orders_{0}_{1}.json'.format(str(yesterday),str(user_id)), 'w')  as outfile:
             json.dump(api_call(user_id).json(), outfile)
         print("Success")
     if obj == "customer":
         with open('users_%s.json' %yesterday, 'w') as outfile:
             json.dump(user_details().json(), outfile)
+    '''
+
     if obj == "agent":
         with open('agent_%s.json' %yesterday, 'w') as outfile:
             json.dump(agent_api().json(), outfile)
         #print("1")
+    '''
 
-def open_file(ftype):
+def open_file(ftype, user_id):
     if ftype == "orders":
         yesterday = process_date()
-        with open("orders_%s.json" %str(yesterday), 'r') as f:
+        with open('orders_{0}_{1}.json'.format(str(yesterday),str(user_id)), 'r') as f:
             orders = f.read()
 
     return orders
@@ -103,7 +108,7 @@ def open_file(ftype):
 #Get list of orders
 def get_list_order(user_id):
     list_orders = []
-    save_json("orders", user_id)
+    #save_json("orders", user_id)
     all_orders = api_call(user_id).json()
     data = all_orders['data']
     jobs = data['all_jobs']
@@ -145,41 +150,60 @@ def get_promo_list():
     response = requests.post(url, data=json.dumps(params), headers=header)
     return response
 
-#jprint(get_promo_list().json())
-data = get_promo_list().json()
-all_promo = data['data']
-print(type(all_promo))
-jprint(data)
+#jprint(user_details().json())
+def order_call():
+    url = "https://api.yelo.red/open/orders/getAll"
+    parameter = {
+        "api_key": api_key,
+        "user_id": 660774,
+        "marketplace_user_id": 373138,
+        "order_status": 13,
+        "start": 0,
+        "length": 1000,
+        "start_date": str(process_date()),
+        "end_date": str(process_date())
+    } 
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, data=json.dumps(parameter), headers=headers)
+    return response
 '''
-#jprint(all_promo)
-print(len(all_promo))
-promo = all_promo[0]
-#print(len(promo))
-date = process_date()
-print(len(date))
-y_year = date[0:4]
-print("y year:", y_year)
-y_month = date[4:6]
-print("y month:", y_month)
-y_day = date[6:8]
-print("y day:", y_day)
+#jprint(get_all_agent().json())
+all_agent = get_all_agent().json()
+list_agent = []
+#print(len(all_agent['data']))
+data = all_agent['data']
+for i in range(len(data)):
+    agent = data[i]
+    list_agent.append(agent['fleet_id'])
 
-exp_date = promo['expiry_datetime_local']
-#print(len(exp_date))
-exp_year = exp_date[0:4]
-exp_month = exp_date[5:7]
-print("exp month:", exp_month)
-exp_day = exp_date[6:8]
-#for i in range(len(date))
+def agent_activity():
+    url = "https://api.tookanapp.com/v2/user_task_stats"
+    params = {
+        "api_key": "51646384f34a57081c586c7b5d46254314e3cdf822d4733a541e01",
+        #"job_status": 2,
+        #"job_type": 2,
+        "start_date": "2020-10-21",
+        "end_date": "2020-10-21"
+        #"order_id": job_ids
+    }
+    header =  {'Content-Type': 'application/json'}
+    response = requests.post(url, data=json.dumps(params), headers=header)
+    return response
 
-#print("Year:", exp_year, "Month: ", exp_month, "Day: ", exp_day)
-product_list = []
-if (exp_year==y_year):
-    print(y_year)
-    if(exp_month==y_month):
-        print(y_month)
-        if(exp_day > y_day):
-            #product_list = promo['product_ids']
-            print(product_list)
+def get_order(user_id):
+    list_orders = []
+    #save_json("orders", user_id)
+    all_orders = api_call(user_id).json()
+    data = all_orders['data']
+    jobs = data['all_jobs']
+    for i in range(len(jobs)):
+        #print(i)
+        order = jobs[i]
+        list_orders.append(order['order_id'])
+    return list_orders
+
+orders = json.loads(open_file("orders",660774))
+job_list = get_order(660774)
+
+jprint(agent_activity().json())
 '''
-#print(product_list)
