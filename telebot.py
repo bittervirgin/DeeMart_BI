@@ -10,7 +10,7 @@ personal_id = "1199485011"
 def api_call(text):
     url = "https://api.telegram.org/bot"
     token = "1253557076:AAGiiX_5xSfDz6PqPit8MuzuTU0A8MhczKk"
-    chat_id = group_id #chat_id of person or group you want to send messsages
+    chat_id = personal_id #chat_id of person or group you want to send messsages
 
     endpoint = url + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text
     response = requests.get(endpoint)
@@ -25,12 +25,13 @@ def generate_report(merchant_id):
     for i in range(len(yesterday)):
         print("i: ",i, yesterday[i])
     '''
+    yesterday = test.process_date()
     year = yesterday[0:4]
     month = yesterday[4:6]
     day = yesterday[6:8]
     
     yesterday = day + " - " + month + " - " + year
-    print(yesterday)
+    
 
     #check if json file is available
     start_time = time.time()
@@ -48,25 +49,46 @@ def generate_report(merchant_id):
     data = orders['data']
     count = data['count']
     jobs = data['all_jobs']
-    total = test.get_quantity(merchant_id)
+    #total = test.get_quantity(merchant_id)
+    total = 0
     revenue = 0
     if merchant_id == 660774:
         merchant_name = "Phú Mỹ Hưng"
     else: merchant_name = "Era Town"
+    quantity = 0
     for i in range(len(jobs)):
         #print(i)
         order = jobs[i]
-        revenue += order['order_amount']
+        dtails = order['product_details']
+        #print(dtails)
+        for j in range(len(dtails)):
+            product = str(dtails[j])
+            quantity  = product.split('$#@')
+           # print(quantity)
+            total += float(quantity[1])
+    
+    order_amount = sum([order.get('order_amount', 0) for order in jobs])
+    revenue = "{:,.0f}".format(revenue)
     basket_size = total/count
-    ticket_size = revenue/count
+    ticket_size = int(order_amount)/count
+    ticket_size = "${:,.2f}".format(ticket_size)
     #create message content
-    text = "DAILY REPORT" + str(yesterday) + "\n" + "SALES METRICS (" + merchant_name + ")  \n"   + "Revenue: " + str(revenue) + "\nOrders: " + str(count) + "\nTicket size: " + str(round(ticket_size, 2)) + "\nBasket size: " + str(round(basket_size, 2))
+    text =  "\t DAILY UPDATE " + str(yesterday) + "\n" + "SALES METRICS (" + merchant_name + ")  \n"   + "Revenue: " + str(revenue) + "\nOrders: " + str(count) + "\nTicket size: " + str(ticket_size) + "\nBasket size: " + str(round(basket_size, 2))
     end_time = time.time()
     print("Generate report time:", end_time-start_time)
     return text
 
 
 if  __name__ == "__main__":
+    yesterday = test.process_date()
+    year = yesterday[0:4]
+    month = yesterday[4:6]
+    day = yesterday[6:8]
+    
+    yesterday = day + " - " + month + " - " + year
+    print(yesterday)
+    text = "#DAILY UPDATE " + str(yesterday) + "\n"
+    #api_call(text)
     for i in range(len(merchant_list)):
         user_id = merchant_list[i]
         api_call(generate_report(user_id))

@@ -207,3 +207,15 @@ job_list = get_order(660774)
 
 jprint(agent_activity().json())
 '''
+#jprint(user_details().json())
+orders = json.loads(open_file("orders",660774))
+data = orders['data']
+jobs = data['all_jobs']
+order = jobs[1]
+dtails = order['product_details']
+for j in range(len(dtails)):
+    product = str(dtails[j])
+    print(type(product))
+    print(type(product.split('$#@')))
+    quantity = product.split('$#@')
+    print(type(quantity[1]))
