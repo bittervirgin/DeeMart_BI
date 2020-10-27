@@ -10,7 +10,7 @@ personal_id = "1199485011"
 def api_call(text):
     url = "https://api.telegram.org/bot"
     token = "1253557076:AAGiiX_5xSfDz6PqPit8MuzuTU0A8MhczKk"
-    chat_id = personal_id #chat_id of person or group you want to send messsages
+    chat_id = group_id #chat_id of person or group you want to send messsages
 
     endpoint = url + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text
     response = requests.get(endpoint)
@@ -68,10 +68,10 @@ def generate_report(merchant_id):
             total += float(quantity[1])
     
     order_amount = sum([order.get('order_amount', 0) for order in jobs])
-    revenue = "{:,.0f}".format(revenue)
+    revenue = "{:,.0f}".format(order_amount)
     basket_size = total/count
     ticket_size = int(order_amount)/count
-    ticket_size = "${:,.2f}".format(ticket_size)
+    ticket_size = "{:,.2f}".format(ticket_size)
     #create message content
     text =  "\t DAILY UPDATE " + str(yesterday) + "\n" + "SALES METRICS (" + merchant_name + ")  \n"   + "Revenue: " + str(revenue) + "\nOrders: " + str(count) + "\nTicket size: " + str(ticket_size) + "\nBasket size: " + str(round(basket_size, 2))
     end_time = time.time()
