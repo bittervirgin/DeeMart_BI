@@ -205,15 +205,13 @@ def first_order_counting():
     #count = data['count']
     jobs = data['all_jobs']
     amount = 0
-    for i in range(len(user_list)):
-        
-        user = user_list[i]
-        for j in range(len(jobs)):
-            order = jobs[i]
-            print(str(order['customer_id']) + "\t" + str(user['id']))
-            if (order['customer_id'] == user['id']):
-                #print(order['customer_id'] + "\t" + user['id'])
-                amount += 1
+    user_id_list = list(set([user['id'] for user in user_list]))
+    customer_id = list(set([job['customer_id'] for job in jobs]))
+    from collections import Counter
+    a = dict(Counter(user_id_list + customer_id))
+    a = {k: v for k, v in sorted(a.items(), key=lambda item: item[1], reverse=True)}
+    print(a)
+    amount = len([x for x in a if a[x] == 2])
     print(amount)
     #wb.save('regis user.xls')
 first_order_counting()
