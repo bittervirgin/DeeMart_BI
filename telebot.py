@@ -77,9 +77,13 @@ def generate_report(merchant_id):
     basket_size = total/count
     ticket_size = int(order_amount)/count
     ticket_size = "{:,.2f}".format(ticket_size)
+    #Customer development
+    new_user, sign_up = test.first_order_counting()
+
     #create message content
-    text =  "\t DAILY UPDATE " + str(yesterday) + "\n" + "SALES METRICS (" + merchant_name + ")  \n"   + "Revenue: " + str(revenue) + "\nOrders: " + str(count) + "\nTicket size: " + str(ticket_size) + "\nBasket size: " + str(round(basket_size, 2))
+    text =  "\t DAILY UPDATE " + str(yesterday) + "\n" + "SALES METRICS (" + merchant_name + ")  \n" + "Revenue: " + str(revenue) + "\nOrders: " + str(count) + "\nTicket size: " + str(ticket_size) + "\nBasket size: " + str(round(basket_size, 2)) + "\nCUSTOMER DEVELOPMENT"  +"\nNew user: " + str(new_user) +"\nConversion rate: "+ str(round(new_user/sign_up, 2))
     end_time = time.time()
+
     print("Generate report time:", end_time-start_time)
     return text
 
