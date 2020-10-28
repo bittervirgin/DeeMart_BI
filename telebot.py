@@ -10,7 +10,7 @@ personal_id = "1199485011"
 def api_call(text):
     url = "https://api.telegram.org/bot"
     token = "1253557076:AAGiiX_5xSfDz6PqPit8MuzuTU0A8MhczKk"
-    chat_id = group_id #chat_id of person or group you want to send messsages
+    chat_id = personal_id #chat_id of person or group you want to send messsages
 
     endpoint = url + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text
     response = requests.get(endpoint)
@@ -48,6 +48,7 @@ def generate_report(merchant_id):
     start_time = time.time()
     data = orders['data']
     count = data['count']
+    count_test = 0
     jobs = data['all_jobs']
     #total = test.get_quantity(merchant_id)
     total = 0
@@ -59,14 +60,18 @@ def generate_report(merchant_id):
     for i in range(len(jobs)):
         #print(i)
         order = jobs[i]
-        dtails = order['product_details']
+        if ("Test" in order['customer_username']):
+            count_test += 1
+        else:
+            dtails = order['product_details']
         #print(dtails)
-        for j in range(len(dtails)):
-            product = str(dtails[j])
-            quantity  = product.split('$#@')
-           # print(quantity)
-            total += float(quantity[1])
-    
+            for j in range(len(dtails)):
+                product = str(dtails[j])
+                quantity  = product.split('$#@')
+            # print(quantity)
+                
+                total += float(quantity[1])
+    count = count - count_test
     order_amount = sum([order.get('order_amount', 0) for order in jobs])
     revenue = "{:,.0f}".format(order_amount)
     basket_size = total/count
